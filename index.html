@@ -26,11 +26,11 @@
         .status-msg { font-size: 0.75rem; text-align: center; margin-bottom: 15px; color: var(--text-muted); }
         .area-card { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid #444; }
         .area-card.available { border-left-color: var(--green); }
-        .area-card.full { border-left-color: var(--red); }
+        .area-card.non-commissionable { border-left-color: var(--red); }
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .status-badge { font-size: 0.65rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
         .status-available { background: rgba(76, 175, 80, 0.15); color: var(--green); }
-        .status-full { background: rgba(255, 82, 82, 0.15); color: var(--red); }
+        .status-non-commissionable { background: rgba(255, 82, 82, 0.15); color: var(--red); }
         .card-details { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
         .card-details i { color: var(--primary); margin-right: 5px; }
     </style>
@@ -95,10 +95,10 @@
                 const stat = (row.Status || "Unknown").trim();
                 const isAvail = stat.toLowerCase().includes('avail');
                 list.innerHTML += `
-                    <div class="area-card ${isAvail ? 'available' : 'full'}">
+                    <div class="area-card ${isAvail ? 'available' : 'non-commissionable'}">
                         <div class="card-top">
                             <strong>${row.Street || 'Main Area'}</strong>
-                            <span class="status-badge ${isAvail ? 'status-available' : 'status-full'}">${stat}</span>
+                            <span class="status-badge ${isAvail ? 'status-available' : 'status-non-commissionable'}">${stat}</span>
                         </div>
                         <div class="card-details">
                             <i class="fa-solid fa-location-dot"></i> ${row.Bayan} • Brgy. ${row.Barangay}
@@ -112,3 +112,4 @@
     </script>
 </body>
 </html>
+

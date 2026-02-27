@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cheetah Area Locator</title>
+    <title>Cheetah Area Locator Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    
     <style>
         :root {
             --primary: #FF8C00;
@@ -17,137 +16,98 @@
             --red: #FF5252;
             --text-muted: #A0A0A0;
         }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--dark-bg);
-            color: white;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
+        body { font-family: 'Poppins', sans-serif; background: var(--dark-bg); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 450px; }
-
         .header { text-align: center; margin-bottom: 25px; }
         .header h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 700; }
-        .header p { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
-
-        /* Search Box */
         .search-wrapper { position: relative; margin-bottom: 15px; }
         .search-wrapper i { position: absolute; left: 15px; top: 18px; color: var(--text-muted); }
-        #areaSearch {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #000;
-            color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        #areaSearch:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 10px rgba(255,140,0,0.2); }
-
+        #areaSearch { width: 100%; padding: 15px 15px 15px 45px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: white; font-size: 1rem; box-sizing: border-box; }
         .status-msg { font-size: 0.75rem; text-align: center; margin-bottom: 15px; color: var(--text-muted); }
-
-        /* Result Cards */
-        .results-list { width: 100%; }
-        .area-card {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 12px;
-            border-left: 5px solid #444;
-            animation: fadeIn 0.3s ease;
-        }
+        .area-card { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid #444; }
         .area-card.available { border-left-color: var(--green); }
         .area-card.full { border-left-color: var(--red); }
-
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .card-top strong { font-size: 1.05rem; display: block; margin-bottom: 4px; }
-        
-        .status-badge {
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
+        .status-badge { font-size: 0.65rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
         .status-available { background: rgba(76, 175, 80, 0.15); color: var(--green); }
         .status-full { background: rgba(255, 82, 82, 0.15); color: var(--red); }
-
         .card-details { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
-        .card-details i { color: var(--primary); margin-right: 5px; font-size: 0.7rem; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .card-details i { color: var(--primary); margin-right: 5px; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
             <h1><i class="fa-solid fa-tower-broadcast"></i> Area Locator</h1>
-            <p>Check line availability across 10 towns</p>
+            <p>Live Coverage Checker</p>
         </div>
-
         <div class="search-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="areaSearch" placeholder="Type Street, Brgy, or Town..." onkeyup="doSearch()">
         </div>
-
-        <div id="statusMsg" class="status-msg">Connecting to Google Sheets...</div>
-
-        <div id="resultsList" class="results-list">
-            </div>
+        <div id="statusMsg" class="status-msg">Initializing database...</div>
+        <div id="resultsList"></div>
     </div>
 
     <script>
-// Palitan mo yung buong <script> section mo nito:
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSZsOoXLFwGqdPDq7WzBFSbyGxLrHiQTwylDU2lW5BN9cCt3oPhgBi79bOHBen8u2HD2oBhV9GGHoJ/pub?output=csv"; 
 
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSZsOoXLFwGqdPDq7WzBFSbyGxLrHiQTwylDU2lW5BN9cCt3oPhgBi79bOHBen8u2HD2oBhV9GGHoJ/pub?output=csv"; // Siguraduhin na may output=csv sa dulo
+        let areaData = [];
 
-let areaData = [];
-
-function init() {
-    // 1. Check kung may link
-    if (!CSV_URL.includes("docs.google.com")) {
-        document.getElementById('statusMsg').innerHTML = "<b style='color:orange;'>⚠️ Link Error:</b> I-paste ang tamang link.";
-        return;
-    }
-
-    // 2. Subukan i-fetch ang data
-    Papa.parse(CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: 'graceful', // Mas matalinong pag-skip sa blank rows
-        complete: function(results) {
-            console.log("Raw Data:", results.data); // Para makita natin sa console kung anong problema
-            
-            // I-filter natin nang mas maluwag (kahit anong column basta may laman)
-            areaData = results.data.filter(row => {
-                return Object.values(row).some(val => val && val.toString().trim() !== "");
-            });
-            
-            if(areaData.length > 0) {
-                document.getElementById('statusMsg').innerHTML = `<span style="color:#4CAF50;"><i class="fa-solid fa-check-circle"></i> Database Online (${areaData.length} records)</span>`;
-            } else {
-                document.getElementById('statusMsg').innerText = "Connected pero walang mabasa sa loob ng sheet.";
+        function init() {
+            if (!CSV_URL.includes("docs.google.com")) {
+                document.getElementById('statusMsg').innerHTML = "<b style='color:orange;'>⚠️ Paalala:</b> I-paste ang CSV link sa code.";
+                return;
             }
-        },
-        error: function(err) {
-            document.getElementById('statusMsg').innerHTML = `<span style='color:#FF5252;'><i class='fa-solid fa-circle-xmark'></i> Connection Failed. Re-publish the Sheet as CSV.</span>`;
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    areaData = results.data.filter(row => row.Bayan && row.Bayan.trim() !== "");
+                    if(areaData.length > 0) {
+                        document.getElementById('statusMsg').innerHTML = `<span style="color:#4CAF50;"><i class="fa-solid fa-check-circle"></i> Online: ${areaData.length} records</span>`;
+                    } else {
+                        document.getElementById('statusMsg').innerText = "Connected: No data found.";
+                    }
+                },
+                error: function() {
+                    document.getElementById('statusMsg').innerHTML = "<span style='color:#FF5252;'>⚠️ Connection Failed.</span>";
+                }
+            });
         }
-    });
-}
 
-// Wag kalimutan tawagin ang init!
-window.onload = init;
+        function doSearch() {
+            const query = document.getElementById('areaSearch').value.toLowerCase().trim();
+            const list = document.getElementById('resultsList');
+            list.innerHTML = "";
+            if (query.length < 2) return;
+
+            const matches = areaData.filter(row => {
+                const b = (row.Bayan || "").toString().toLowerCase();
+                const br = (row.Barangay || "").toString().toLowerCase();
+                const s = (row.Street || "").toString().toLowerCase();
+                return b.includes(query) || br.includes(query) || s.includes(query);
+            }).slice(0, 30);
+
+            matches.forEach(row => {
+                const stat = (row.Status || "Unknown").trim();
+                const isAvail = stat.toLowerCase().includes('avail');
+                list.innerHTML += `
+                    <div class="area-card ${isAvail ? 'available' : 'full'}">
+                        <div class="card-top">
+                            <strong>${row.Street || 'Main Area'}</strong>
+                            <span class="status-badge ${isAvail ? 'status-available' : 'status-full'}">${stat}</span>
+                        </div>
+                        <div class="card-details">
+                            <i class="fa-solid fa-location-dot"></i> ${row.Bayan} • Brgy. ${row.Barangay}
+                        </div>
+                    </div>
+                `;
+            });
+            if (matches.length === 0) list.innerHTML = `<p style="text-align:center; color:#555; margin-top:20px;">No results found.</p>`;
+        }
+        init();
     </script>
 </body>
-
 </html>

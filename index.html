@@ -150,23 +150,28 @@
     box.style.display = (box.style.display === 'block') ? 'none' : 'block';
 }
 
-async function sendToTelegram() {
+async function sendToTelegram(e) {
+    if (e) e.preventDefault();
+
     const street = document.getElementById('suggestStreet').value.trim();
     const brgy = document.getElementById('suggestBrgy').value.trim();
     const bayan = document.getElementById('suggestBayan').value.trim();
+    const btn = document.getElementById('submitBtn');
 
     if (!street || !brgy || !bayan) {
-        alert("Pakikumpleto ang detalye.");
+        alert("Pakisagutan lahat ng fields.");
         return;
     }
 
-    // --- SETUP MO DITO ---
-    const botToken = "8432694449:AAEbMBiUTNzIaabNXWkhhZhFgtr0_PSC-eM"; // Halimbawa: 123456789:ABCDefGhIj
-    const chatId = "841757570";     // Halimbawa: 987654321
-    // ---------------------
+    // --- DOUBLE CHECK MO ITO ---
+    const botToken = "8432694449:AAEbMBiUTNzIaabNXWkhhZhFgtr0_PSC-eM"; 
+    const chatId = "841757570"; // <--- Dito mo ilagay yung nakuha mo sa getUpdates
+    // ---------------------------
 
-    const message = `📢 NEW AREA SUGGESTION\n\n📍 Street: ${street}\n🏘️ Barangay: ${brgy}\n🏙️ Bayan: ${bayan}`;
-    const btn = event.target; // Yung button na pinindot
+    const message = `<b>📢 NEW AREA SUGGESTION</b>\n\n` +
+                    `📍 <b>Street:</b> ${street}\n` +
+                    `🏘️ <b>Barangay:</b> ${brgy}\n` +
+                    `🏙️ <b>Bayan:</b> ${bayan}`;
 
     try {
         btn.innerText = "Sending...";
@@ -182,17 +187,21 @@ async function sendToTelegram() {
             })
         });
 
+        const result = await response.json();
+        console.log("Telegram Response:", result); // Para makita natin ang detalye sa console
+
         if (response.ok) {
-            alert("Salamat! Na-isend na ang iyong suggestion.");
-            toggleSuggest();
+            alert("Salamat! Na-send na ang suggestion.");
             document.getElementById('suggestStreet').value = "";
             document.getElementById('suggestBrgy').value = "";
             document.getElementById('suggestBayan').value = "";
+            toggleSuggest();
         } else {
-            throw new Error('Failed to send');
+            // Ito yung magsasabi kung bakit 403 (mali ang ID o hindi naka-start ang bot)
+            alert("Error: " + result.description);
         }
     } catch (error) {
-        alert("Ops, nagka-error. Pakisend na lang ulit.");
+        alert("Network error. Pakicheck ang connection.");
     } finally {
         btn.innerText = "Send Suggestion";
         btn.disabled = false;
@@ -201,6 +210,7 @@ async function sendToTelegram() {
     </script>
 </body>
 </html>
+
 
 
 

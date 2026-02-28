@@ -33,6 +33,28 @@
         .status-non-commissionable { background: rgba(255, 82, 82, 0.15); color: var(--red); }
         .card-details { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
         .card-details i { color: var(--primary); margin-right: 5px; }
+        .suggest-input {
+    width: 100%;
+    background: #000;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: inherit;
+    margin-bottom: 8px; /* Space between inputs */
+    font-size: 0.85rem;
+}
+
+.suggest-input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* Button with Icon */
+.suggestion-box button i {
+    margin-right: 5px;
+}
     </style>
 </head>
 <body>
@@ -47,6 +69,22 @@
         </div>
         <div id="statusMsg" class="status-msg">Initializing database...</div>
         <div id="resultsList"></div>
+        <div class="fab" onclick="toggleSuggest()">
+    <i class="fa-solid fa-comment-dots"></i>
+</div>
+
+<div class="suggestion-box" id="suggestBox">
+    <h3><i class="fa-solid fa-map-pin"></i> Suggest New Area</h3>
+    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 15px;">Fill up the details below:</p>
+    
+    <input type="text" id="suggestStreet" placeholder="Street / Sitio / Phase" class="suggest-input">
+    <input type="text" id="suggestBrgy" placeholder="Barangay" class="suggest-input">
+    <input type="text" id="suggestBayan" placeholder="Bayan / City" class="suggest-input">
+    
+    <button onclick="sendToTelegram()" style="margin-top: 10px;">
+        <i class="fa-brands fa-telegram"></i> Send to Telegram
+    </button>
+</div>
     </div>
 
     <script>
@@ -109,7 +147,44 @@
             if (matches.length === 0) list.innerHTML = `<p style="text-align:center; color:#555; margin-top:20px;">No results found.</p>`;
         }
         init();
+        function toggleSuggest() {
+    const box = document.getElementById('suggestBox');
+    box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+}
+
+function sendToTelegram() {
+    // Kunin ang values mula sa inputs
+    const street = document.getElementById('suggestStreet').value.trim();
+    const brgy = document.getElementById('suggestBrgy').value.trim();
+    const bayan = document.getElementById('suggestBayan').value.trim();
+
+    // Validation: Check kung may laman lahat
+    if (!street || !brgy || !bayan) {
+        alert("Pakisagutan ang lahat ng fields (Street, Barangay, at Bayan).");
+        return;
+    }
+
+    // PALITAN MO ITO: Ilagay ang iyong Telegram Username (walang @)
+    const tgUsername = "pogisipat"; 
+
+    // I-format ang message
+    const message = `CHEETAH AREA SUGGESTION:%0A` + 
+                    `📍 Street: ${street}%0A` + 
+                    `🏘️ Barangay: ${brgy}%0A` + 
+                    `🏙️ Bayan: ${bayan}`;
+
+    // I-open ang Telegram link
+    const url = `https://t.me/${tgUsername}?text=${message}`;
+    window.open(url, '_blank');
+
+    // I-reset at i-close ang box
+    toggleSuggest();
+    document.getElementById('suggestStreet').value = "";
+    document.getElementById('suggestBrgy').value = "";
+    document.getElementById('suggestBayan').value = "";
+}
     </script>
 </body>
 </html>
+
 

@@ -16,14 +16,19 @@
             --red: #FF5252;
             --text-muted: #A0A0A0;
         }
-        body { font-family: 'Poppins', sans-serif; background: var(--dark-bg); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 450px; }
+        body { font-family: 'Poppins', sans-serif; background: var(--dark-bg); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 450px; padding-bottom: 80px; }
         .header { text-align: center; margin-bottom: 25px; }
         .header h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 700; }
+        
+        /* Search Styles */
         .search-wrapper { position: relative; margin-bottom: 15px; }
         .search-wrapper i { position: absolute; left: 15px; top: 18px; color: var(--text-muted); }
         #areaSearch { width: 100%; padding: 15px 15px 15px 45px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); background: #000; color: white; font-size: 1rem; box-sizing: border-box; }
+        
         .status-msg { font-size: 0.75rem; text-align: center; margin-bottom: 15px; color: var(--text-muted); }
+        
+        /* Area Cards */
         .area-card { background: var(--card-bg); padding: 15px; border-radius: 15px; margin-bottom: 12px; border-left: 5px solid #444; }
         .area-card.available { border-left-color: var(--green); }
         .area-card.non-commissionable { border-left-color: var(--red); }
@@ -33,28 +38,85 @@
         .status-non-commissionable { background: rgba(255, 82, 82, 0.15); color: var(--red); }
         .card-details { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
         .card-details i { color: var(--primary); margin-right: 5px; }
+
+        /* Floating Button (FAB) */
+        .fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, var(--primary), #FF5F1F);
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3);
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        .fab:hover { transform: scale(1.1) rotate(5deg); }
+
+        /* Glassmorphism Bottom Drawer */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            z-index: 1999;
+            backdrop-filter: blur(4px);
+        }
+
+        .suggestion-box {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            width: 100%; max-width: 500px;
+            margin: 0 auto;
+            background: rgba(25, 25, 25, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 25px 25px 0 0;
+            padding: 30px 25px 40px 25px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 2000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-sizing: border-box;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        .suggestion-box::before {
+            content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px;
+        }
+
+        .suggestion-box h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1.3rem; }
+        
         .suggest-input {
-    width: 100%;
-    background: #000;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 8px;
-    padding: 10px;
-    box-sizing: border-box;
-    font-family: inherit;
-    margin-bottom: 8px; /* Space between inputs */
-    font-size: 0.85rem;
-}
+            width: 100%; background: rgba(0, 0, 0, 0.5); color: white;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            padding: 12px 15px; box-sizing: border-box; font-family: inherit;
+            margin-bottom: 10px; font-size: 0.9rem; transition: 0.3s;
+        }
 
-.suggest-input:focus {
-    border-color: var(--primary);
-    outline: none;
-}
+        .suggest-input:focus { border-color: var(--primary); outline: none; background: rgba(0,0,0,0.8); }
 
-/* Button with Icon */
-.suggestion-box button i {
-    margin-right: 5px;
-}
+        #submitBtn {
+            width: 100%; background: linear-gradient(135deg, var(--primary), #FF5F1F);
+            color: white; border: none; padding: 15px; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+            transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        
+        #submitBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -63,37 +125,42 @@
             <h1><i class="fa-solid fa-tower-broadcast"></i> Area Locator</h1>
             <p>Live Coverage Checker</p>
         </div>
+        
         <div class="search-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="areaSearch" placeholder="Type Street, Brgy, or Town..." onkeyup="doSearch()">
         </div>
+        
         <div id="statusMsg" class="status-msg">Initializing database...</div>
         <div id="resultsList"></div>
-        <div class="fab" onclick="toggleSuggest()">
-    <i class="fa-solid fa-comment-dots"></i>
-</div>
+    </div>
 
-<div class="suggestion-box" id="suggestBox">
-    <h3><i class="fa-solid fa-map-pin"></i> Suggest New Area</h3>
-    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 15px;">Fill up the details below:</p>
-    
-    <input type="text" id="suggestStreet" placeholder="Street / Sitio / Phase" class="suggest-input">
-    <input type="text" id="suggestBrgy" placeholder="Barangay" class="suggest-input">
-    <input type="text" id="suggestBayan" placeholder="Bayan / City" class="suggest-input">
-    
-    <button id="submitBtn" onclick="sendToTelegram(event)">Send Suggestion</button>
-</div>
+    <div class="fab" onclick="toggleSuggest()">
+        <i class="fa-solid fa-comment-dots"></i>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleSuggest()"></div>
+    <div class="suggestion-box" id="suggestBox">
+        <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Suggest Area</h3>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 20px;">Help us update our coverage map.</p>
+        
+        <input type="text" id="suggestStreet" placeholder="📍 Street / Sitio / Phase" class="suggest-input">
+        <input type="text" id="suggestBrgy" placeholder="🏘️ Barangay" class="suggest-input">
+        <input type="text" id="suggestBayan" placeholder="🏙️ Bayan / City" class="suggest-input">
+        
+        <button id="submitBtn" onclick="sendToTelegram(event)">
+            <span>Send Suggestion</span>
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
     </div>
 
     <script>
-        // STEP 1: I-paste dito ang iyong CSV link mula sa Google Sheets
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSZsOoXLFwGqdPDq7WzBFSbyGxLrHiQTwylDU2lW5BN9cCt3oPhgBi79bOHBen8u2HD2oBhV9GGHoJ/pub?output=csv"; 
-
         let areaData = [];
 
         function init() {
             if (!CSV_URL.includes("docs.google.com")) {
-                document.getElementById('statusMsg').innerHTML = "<b style='color:orange;'>⚠️ Paalala:</b> I-paste ang CSV link sa code.";
+                document.getElementById('statusMsg').innerHTML = "<b style='color:orange;'>⚠️ Paalala:</b> I-paste ang CSV link.";
                 return;
             }
             Papa.parse(CSV_URL, {
@@ -104,8 +171,6 @@
                     areaData = results.data.filter(row => row.Bayan && row.Bayan.trim() !== "");
                     if(areaData.length > 0) {
                         document.getElementById('statusMsg').innerHTML = `<span style="color:#4CAF50;"><i class="fa-solid fa-check-circle"></i> Online: ${areaData.length} records</span>`;
-                    } else {
-                        document.getElementById('statusMsg').innerText = "Connected: No data found.";
                     }
                 },
                 error: function() {
@@ -144,78 +209,64 @@
             });
             if (matches.length === 0) list.innerHTML = `<p style="text-align:center; color:#555; margin-top:20px;">No results found.</p>`;
         }
-        init();
+
         function toggleSuggest() {
-    const box = document.getElementById('suggestBox');
-    box.style.display = (box.style.display === 'block') ? 'none' : 'block';
-}
-
-async function sendToTelegram(e) {
-    if (e) e.preventDefault();
-
-    const street = document.getElementById('suggestStreet').value.trim();
-    const brgy = document.getElementById('suggestBrgy').value.trim();
-    const bayan = document.getElementById('suggestBayan').value.trim();
-    const btn = document.getElementById('submitBtn');
-
-    if (!street || !brgy || !bayan) {
-        alert("Pakisagutan lahat ng fields.");
-        return;
-    }
-
-    // --- DOUBLE CHECK MO ITO ---
-    const botToken = "8432694449:AAEbMBiUTNzIaabNXWkhhZhFgtr0_PSC-eM"; 
-    const chatId = "6551261245"; // <--- Dito mo ilagay yung nakuha mo sa getUpdates
-    // ---------------------------
-
-    const message = `<b>📢 NEW AREA SUGGESTION</b>\n\n` +
-                    `📍 <b>Street:</b> ${street}\n` +
-                    `🏘️ <b>Barangay:</b> ${brgy}\n` +
-                    `🏙️ <b>Bayan:</b> ${bayan}`;
-
-    try {
-        btn.innerText = "Sending...";
-        btn.disabled = true;
-
-        const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-                parse_mode: "HTML"
-            })
-        });
-
-        const result = await response.json();
-        console.log("Telegram Response:", result); // Para makita natin ang detalye sa console
-
-        if (response.ok) {
-            alert("Salamat! Na-send na ang suggestion.");
-            document.getElementById('suggestStreet').value = "";
-            document.getElementById('suggestBrgy').value = "";
-            document.getElementById('suggestBayan').value = "";
-            toggleSuggest();
-        } else {
-            // Ito yung magsasabi kung bakit 403 (mali ang ID o hindi naka-start ang bot)
-            alert("Error: " + result.description);
+            const box = document.getElementById('suggestBox');
+            const overlay = document.getElementById('overlay');
+            const isOpen = box.style.display === 'block';
+            box.style.display = isOpen ? 'none' : 'block';
+            overlay.style.display = isOpen ? 'none' : 'block';
         }
-    } catch (error) {
-        alert("Network error. Pakicheck ang connection.");
-    } finally {
-        btn.innerText = "Send Suggestion";
-        btn.disabled = false;
-    }
-}
+
+        async function sendToTelegram(e) {
+            if (e) e.preventDefault();
+            const street = document.getElementById('suggestStreet').value.trim();
+            const brgy = document.getElementById('suggestBrgy').value.trim();
+            const bayan = document.getElementById('suggestBayan').value.trim();
+            const btn = document.getElementById('submitBtn');
+
+            if (!street || !brgy || !bayan) {
+                alert("Pakisagutan lahat ng fields.");
+                return;
+            }
+
+            const botToken = "8432694449:AAEbMBiUTNzIaabNXWkhhZhFgtr0_PSC-eM"; 
+            const chatId = "6551261245"; 
+
+            const message = `<b>📢 NEW AREA SUGGESTION</b>\n\n` +
+                            `📍 <b>Street:</b> ${street}\n` +
+                            `🏘️ <b>Barangay:</b> ${brgy}\n` +
+                            `🏙️ <b>Bayan:</b> ${bayan}`;
+
+            try {
+                btn.innerHTML = "Sending... <i class='fa-solid fa-circle-notch fa-spin'></i>";
+                btn.disabled = true;
+
+                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: "HTML" })
+                });
+
+                if (response.ok) {
+                    alert("✅ Salamat! Na-send na ang suggestion.");
+                    document.getElementById('suggestStreet').value = "";
+                    document.getElementById('suggestBrgy').value = "";
+                    document.getElementById('suggestBayan').value = "";
+                    toggleSuggest();
+                } else {
+                    const res = await response.json();
+                    alert("Error: " + res.description);
+                }
+            } catch (error) {
+                alert("Network error. Pakicheck ang connection.");
+            } finally {
+                btn.innerHTML = "<span>Send Suggestion</span> <i class='fa-solid fa-paper-plane'></i>";
+                btn.disabled = false;
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

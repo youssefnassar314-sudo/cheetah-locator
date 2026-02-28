@@ -81,9 +81,7 @@
     <input type="text" id="suggestBrgy" placeholder="Barangay" class="suggest-input">
     <input type="text" id="suggestBayan" placeholder="Bayan / City" class="suggest-input">
     
-    <button onclick="sendToTelegram()" style="margin-top: 10px;">
-        <i class="fa-brands fa-telegram"></i> Send to Telegram
-    </button>
+    <button onclick="sendToTelegram(event)">Send Suggestion</button>
 </div>
     </div>
 
@@ -203,6 +201,7 @@ async function sendToTelegram() {
     </script>
 </body>
 </html>
+
 
 
 

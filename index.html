@@ -152,39 +152,57 @@
     box.style.display = (box.style.display === 'block') ? 'none' : 'block';
 }
 
-function sendToTelegram() {
-    // Kunin ang values mula sa inputs
+async function sendToTelegram() {
     const street = document.getElementById('suggestStreet').value.trim();
     const brgy = document.getElementById('suggestBrgy').value.trim();
     const bayan = document.getElementById('suggestBayan').value.trim();
 
-    // Validation: Check kung may laman lahat
     if (!street || !brgy || !bayan) {
-        alert("Pakisagutan ang lahat ng fields (Street, Barangay, at Bayan).");
+        alert("Pakikumpleto ang detalye.");
         return;
     }
 
-    // PALITAN MO ITO: Ilagay ang iyong Telegram Username (walang @)
-    const tgUsername = "pogisipat"; 
+    // --- SETUP MO DITO ---
+    const botToken = "8432694449:AAEbMBiUTNzIaabNXWkhhZhFgtr0_PSC-eM"; // Halimbawa: 123456789:ABCDefGhIj
+    const chatId = "8432694449";     // Halimbawa: 987654321
+    // ---------------------
 
-    // I-format ang message
-    const message = `CHEETAH AREA SUGGESTION:%0A` + 
-                    `📍 Street: ${street}%0A` + 
-                    `🏘️ Barangay: ${brgy}%0A` + 
-                    `🏙️ Bayan: ${bayan}`;
+    const message = `📢 NEW AREA SUGGESTION\n\n📍 Street: ${street}\n🏘️ Barangay: ${brgy}\n🏙️ Bayan: ${bayan}`;
+    const btn = event.target; // Yung button na pinindot
 
-    // I-open ang Telegram link
-    const url = `https://t.me/${tgUsername}?text=${message}`;
-    window.open(url, '_blank');
+    try {
+        btn.innerText = "Sending...";
+        btn.disabled = true;
 
-    // I-reset at i-close ang box
-    toggleSuggest();
-    document.getElementById('suggestStreet').value = "";
-    document.getElementById('suggestBrgy').value = "";
-    document.getElementById('suggestBayan').value = "";
+        const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message,
+                parse_mode: "HTML"
+            })
+        });
+
+        if (response.ok) {
+            alert("Salamat! Na-isend na ang iyong suggestion.");
+            toggleSuggest();
+            document.getElementById('suggestStreet').value = "";
+            document.getElementById('suggestBrgy').value = "";
+            document.getElementById('suggestBayan').value = "";
+        } else {
+            throw new Error('Failed to send');
+        }
+    } catch (error) {
+        alert("Ops, nagka-error. Pakisend na lang ulit.");
+    } finally {
+        btn.innerText = "Send Suggestion";
+        btn.disabled = false;
+    }
 }
     </script>
 </body>
 </html>
+
 
 

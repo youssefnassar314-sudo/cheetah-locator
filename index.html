@@ -16,43 +16,10 @@
             --red: #FF5252;
             --text-muted: #A0A0A0;
         }
-        body { font-family: 'Poppins', sans-serif; background: var(--dark-bg); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden; } /* Naka-hidden muna ang scroll */
+        body { font-family: 'Poppins', sans-serif; background: var(--dark-bg); color: white; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; } 
         
-        /* Password Screen Style */
-        #passwordScreen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--dark-bg);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 9999;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .pw-card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,140,0,0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 350px;
-            width: 100%;
-        }
-        .pw-card i { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
-        .pw-card h2 { margin: 10px 0; font-size: 1.2rem; color: white; }
-        .pw-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
-        #pwInput {
-            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #444;
-            background: #000; color: white; text-align: center; font-size: 1.2rem;
-            letter-spacing: 5px; margin-bottom: 15px; box-sizing: border-box;
-        }
-        #pwBtn {
-            width: 100%; background: var(--primary); color: white; border: none;
-            padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer;
-        }
-
         /* Container & Main UI */
-        .container { width: 100%; max-width: 450px; padding-bottom: 80px; display: none; } /* Hidden muna */
+        .container { width: 100%; max-width: 450px; padding-bottom: 80px; } 
         .header { text-align: center; margin-bottom: 25px; }
         .header h1 { color: var(--primary); margin: 0; font-size: 1.8rem; font-weight: 700; }
         .search-wrapper { position: relative; margin-bottom: 15px; }
@@ -70,7 +37,7 @@
         .card-details i { color: var(--primary); margin-right: 5px; }
 
         /* Drawer & Buttons */
-        .fab { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, var(--primary), #FF5F1F); width: 60px; height: 60px; border-radius: 20px; display: none; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3); cursor: pointer; z-index: 1001; }
+        .fab { position: fixed; bottom: 25px; right: 25px; background: linear-gradient(135deg, var(--primary), #FF5F1F); width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3); cursor: pointer; z-index: 1001; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 1999; backdrop-filter: blur(4px); }
         .suggestion-box { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; max-width: 500px; margin: 0 auto; background: rgba(25, 25, 25, 0.95); backdrop-filter: blur(20px); border-radius: 25px 25px 0 0; padding: 30px 25px 40px 25px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); display: none; z-index: 2000; border: 1px solid rgba(255, 255, 255, 0.1); box-sizing: border-box; }
         .suggest-input { width: 100%; background: rgba(0, 0, 0, 0.5); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 15px; box-sizing: border-box; margin-bottom: 10px; font-size: 0.9rem; }
@@ -78,16 +45,6 @@
     </style>
 </head>
 <body>
-
-    <div id="passwordScreen">
-        <div class="pw-card">
-            <i class="fa-solid fa-cake-candles"></i>
-            <h2>Birthday ni Gillian Patricia😝</h2>
-            <p>Numbers only (mmddyy or like 031120)</p>
-            <input type="password" id="pwInput" inputmode="numeric" placeholder="••••••••">
-            <button id="pwBtn" onclick="checkPassword()">Login</button>
-        </div>
-    </div>
 
     <div class="container" id="mainApp">
         <div class="header">
@@ -121,23 +78,6 @@
     </div>
 
     <script>
-        // --- PASSWORD CONFIG ---
-        const CORRECT_PASSWORD = "012604"; // PALITAN MO ITO NG BIRTHDAY MO
-
-        function checkPassword() {
-            const input = document.getElementById('pwInput').value;
-            if (input === CORRECT_PASSWORD) {
-                document.getElementById('passwordScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('fabBtn').style.display = 'flex';
-                document.body.style.overflow = 'auto';
-                init(); // Start loading CSV only after login
-            } else {
-                alert("Mali ang password, bes!");
-                document.getElementById('pwInput').value = "";
-            }
-        }
-
         // --- CSV & SEARCH LOGIC ---
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSZsOoXLFwGqdPDq7WzBFSbyGxLrHiQTwylDU2lW5BN9cCt3oPhgBi79bOHBen8u2HD2oBhV9GGHoJ/pub?output=csv"; 
         let areaData = [];
@@ -209,7 +149,9 @@
             } catch (error) { alert("Error!"); }
             finally { btn.innerHTML = "Send Suggestion"; btn.disabled = false; }
         }
+
+        // Simulan agad ang pag-load ng database pagbukas ng app
+        window.onload = init;
     </script>
 </body>
 </html>
-
